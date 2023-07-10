@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShoppingifyChallenge", "ShoppingifyChallenge\ShoppingifyChallenge.csproj", "{6768BD70-82F1-41F4-9D3F-F88D1B405148}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingifyChallenge.Tests", "ShoppingifyChallenge.Tests\ShoppingifyChallenge.Tests.csproj", "{BB08EC56-BA4A-4471-AE6D-6317FFECD9C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6768BD70-82F1-41F4-9D3F-F88D1B405148}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6768BD70-82F1-41F4-9D3F-F88D1B405148}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6768BD70-82F1-41F4-9D3F-F88D1B405148}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6768BD70-82F1-41F4-9D3F-F88D1B405148}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB08EC56-BA4A-4471-AE6D-6317FFECD9C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB08EC56-BA4A-4471-AE6D-6317FFECD9C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB08EC56-BA4A-4471-AE6D-6317FFECD9C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB08EC56-BA4A-4471-AE6D-6317FFECD9C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED2BAD05-A33B-4F21-A261-CE8EC8A9B401}
+	EndGlobalSection
+EndGlobal
