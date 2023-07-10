@@ -32,24 +32,35 @@ namespace ShoppingifyChallenge.Services
             return Result.Ok(item);
         }
 
-        public Task<Result<ICollection<Item>>> GetAllItems(int userId)
+        public async Task<ICollection<Item>> GetAllItems(int userId)
         {
-            throw new NotImplementedException();
+            var items = await _dbContext.Items.Include(i => i.Category).Where(i => i.Category.UserId == userId && !i.Deleted).ToListAsync();
+            return items;
         }
 
-        public Task<Result<ICollection<Item>>> GetAllItemsByCategory(int userId, int categoryId)
+        public async Task<ICollection<Item>> GetAllItemsByCategory(int userId, int categoryId)
         {
-            throw new NotImplementedException();
+            var items = await _dbContext.Items.Include(i => i.Category).Where(i => i.Category.UserId == userId && i.CategoryId == categoryId && !i.Deleted).ToListAsync();
+            return items;
         }
 
-        public Task<Result<Item>> GetItemById(int userId, int itemId)
+        public async Task<Item?> GetItemById(int userId, int itemId)
         {
-            throw new NotImplementedException();
+            var item = await _dbContext.Items.Include(i => i.Category).FirstOrDefaultAsync(i => i.Category.UserId == userId && i.Id == itemId && !i.Deleted);
+            return item;
         }
 
-        public Task<Result> SoftDeleteItem(int userId, int itemId)
+        public async Task<Result> SoftDeleteItem(int userId, int itemId)
         {
-            throw new NotImplementedException();
+            var item = await _dbContext.Items.FirstOrDefaultAsync(i => i.Category.UserId == userId && i.Id == itemId);
+            if (item == null)
+            {
+                return Result.Fail("Item not found");
+            }
+
+            item.Deleted = true;
+            await _dbContext.SaveChangesAsync();
+            return Result.Ok();
         }
     }
 }

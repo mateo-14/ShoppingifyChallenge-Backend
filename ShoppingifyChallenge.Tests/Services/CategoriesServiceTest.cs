@@ -20,13 +20,13 @@ namespace ShoppingifyChallenge.Tests.Services
             {
                 ICategoriesService categoriesService = new CategoriesService(db);
 
-                await Utils.SeedDb(db);
+                var user = await Utils.SeedUser(db);
                 string name = "Category Test";
-                var result = await categoriesService.CreateCategory(Utils.User.Id, name);
+                var result = await categoriesService.CreateCategory(user.Id, name);
 
                 Assert.IsTrue(result.IsSuccess);
                 Assert.AreEqual(name, result.Value.Name);
-                Assert.AreEqual(Utils.User.Id, result.Value.UserId);
+                Assert.AreEqual(user.Id, result.Value.UserId);
             }
         }
 
@@ -47,25 +47,23 @@ namespace ShoppingifyChallenge.Tests.Services
         {
             using (var db = new ShoppingListContext(Utils.GetInMemoryDbContextOptions()))
             {
-                await Utils.SeedDb(db);
-                var categories = await db.Categories.ToListAsync();
+                var user = await Utils.SeedUser(db);
+                var categories = await Utils.SeedCategories(db);
                 ICategoriesService categoriesService = new CategoriesService(db);
 
-                var result = await categoriesService.GetAllCategories(Utils.User.Id);
-
-                Assert.IsTrue(result.IsSuccess);
-                Assert.AreEqual(Utils.Categories.Count, result.Value.Count - 1);
+                var resultCategories = await categoriesService.GetAllCategories(user.Id);
+                Assert.AreEqual(categories.Count, resultCategories.Count);
             }
         }
 
         [TestMethod]
-        public async Task GetAllCategories_ShouldReturnError()
+        public async Task GetAllCategories_WhenCalledWithInvalidUserId_ShouldReturnEmptyList()
         {
             using (var db = new ShoppingListContext(Utils.GetInMemoryDbContextOptions()))
             {
                 ICategoriesService categoriesService = new CategoriesService(db);
-                var result = await categoriesService.GetAllCategories(2);
-                Assert.IsTrue(result.IsFailed);
+                var resultCategories = await categoriesService.GetAllCategories(2);
+                Assert.AreEqual(0, resultCategories.Count);
             }
         }
     }

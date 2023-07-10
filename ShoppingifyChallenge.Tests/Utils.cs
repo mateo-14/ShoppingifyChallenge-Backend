@@ -28,36 +28,81 @@ namespace ShoppingifyChallenge.Tests
             })
             .Build();
 
-
-        public static User User = new User
+        public static async Task<User> SeedUser(ShoppingListContext db)
         {
-            Email = "email@example.com"
-        };
-
-        public static ICollection<Category> Categories = new List<Category>
-        {
-            new Category
+            var user = new User
             {
-                Name = "Category 1",
-                UserId = 1
-            },
-            new Category
-            {
-                Name = "Category 2",
-                UserId = 1
-            },
-            new Category
-            {
-                Name = "Category 3",
-                UserId = 1
-            }
-        };
-
-        public static async Task SeedDb(ShoppingListContext db)
-        {
-            db.Users.Add(User);
-            db.Categories.AddRange(Categories);
+                Email = "email@example.com"
+            };
+            db.Users.Add(user);
             await db.SaveChangesAsync();
-        } 
+
+            return user;
+        }
+
+        public static async Task<ICollection<Category>> SeedCategories(ShoppingListContext db)
+        {
+            var categories = new List<Category>
+            {
+                new Category
+                {
+                    Name = "Category 1",
+                    UserId = 1
+                },
+                new Category
+                {
+                    Name = "Category 2",
+                    UserId = 1
+                },
+                new Category
+                {
+                    Name = "Category 3",
+                    UserId = 1
+                }
+            };
+
+            db.Categories.AddRange(categories);
+            await db.SaveChangesAsync();
+
+            return categories;
+        }
+
+        public static async Task<ICollection<Item>> SeedItems(ShoppingListContext db)
+        {
+            var items = new List<Item>
+            {
+                new Item
+                {
+                    Name = "Item 1",
+                    CategoryId = 1
+                },
+                new Item
+                {
+                    Name = "Item 2",
+                    CategoryId = 1
+                },
+                new Item
+                {
+                    Name = "Deleted Item 1",
+                    CategoryId = 1,
+                    Deleted = true
+                },
+                new Item
+                {
+                    Name = "Item 3",
+                    CategoryId = 2
+                },
+                new Item
+                {
+                    Name = "Deleted Item 2",
+                    CategoryId = 3,
+                    Deleted = true
+                }
+            };
+            db.Items.AddRange(items);
+            await db.SaveChangesAsync();
+
+            return items;
+        }
     }
 }

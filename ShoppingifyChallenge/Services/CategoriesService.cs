@@ -27,16 +27,10 @@ namespace ShoppingifyChallenge.Services
             return Result.Ok(category);
         }
 
-        public async Task<Result<ICollection<Category>>> GetAllCategories(int userId)
+        public async Task<ICollection<Category>> GetAllCategories(int userId)
         {
-            var user = await _dbContext.Users.FindAsync(userId);
-            if (user == null)
-            {
-                return Result.Fail("User not found");
-            }
-
             var categories = await _dbContext.Categories.Where(c => c.UserId == userId).ToListAsync();
-            return Result.Ok<ICollection<Category>>(categories);
+            return categories;
         }
     }
 }
