@@ -5,6 +5,7 @@ using ShoppingifyChallenge.Models;
 using ShoppingifyChallenge.Services;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 
 namespace ShoppingifyChallenge.Tests.Controllers
@@ -44,6 +45,64 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 Assert.IsNotNull(data);
                 Assert.AreEqual(totalUserCategories, data.Count);
             }
+        }
+
+        [TestMethod]
+        public async Task GetCategories_WhenCalledWithInvalidToken_ReturnsUnauthorized()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "invalidtoken");
+
+            var response = await _client.GetAsync("/api/categories");
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetCategories_WhenCalledWithoutToken_ReturnsUnauthorized()
+        {
+            var response = await _client.GetAsync("/api/categories");
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task CreateCategory_ReturnsCreatedCategory()
+        {
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ShoppingListContext>();
+                var user = await dbContext.Users.FirstAsync();
+                var magiclinkToken = await scope.ServiceProvider.GetRequiredService<IAuthService>().GenerateMagiclinkToken(user.Email);
+                var token = await scope.ServiceProvider.GetRequiredService<IAuthService>().LoginWithMagiclinkToken(magiclinkToken);
+                var totalUserCategories = await dbContext.Categories.Where(c => c.UserId == user.Id).CountAsync();
+
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+
+                var newCategory = new { name = "New Category" };
+                var response = await _client.PostAsync("/api/categories", new StringContent(JsonSerializer.Serialize(new { name = "New Category" }), Encoding.UTF8, "application/json"));
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+                var content = await response.Content.ReadAsStringAsync();
+                var createdCategory = JsonSerializer.Deserialize<Category>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                Assert.IsNotNull(createdCategory);
+                Assert.AreEqual(createdCategory.Name, newCategory.name);
+                Assert.AreEqual(totalUserCategories + 1, await dbContext.Categories.Where(c => c.UserId == user.Id).CountAsync());
+            }
+        }
+
+        [TestMethod]
+        public async Task CreateCategory_WhenCalledWithInvalidToken_ReturnsUnauthorized()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "invalidtoken");
+
+            var response = await _client.PostAsync("/api/categories", new StringContent(JsonSerializer.Serialize(new { name = "New Category" }), Encoding.UTF8, "application/json"));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task CreateCategory_WhenCalledWithoutToken_ReturnsUnauthorized()
+        {
+            var response = await _client.PostAsync("/api/categories", new StringContent(JsonSerializer.Serialize(new { name = "New Category" }), Encoding.UTF8, "application/json"));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
     }
 }

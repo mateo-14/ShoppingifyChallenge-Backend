@@ -37,11 +37,6 @@ namespace ShoppingifyChallenge.Data
                 .Property(ml => ml.CreatedAt)
                 .HasDefaultValueSql("NOW()");
 
-            modelBuilder.Entity<MagiclinkToken>()
-                .HasOne(ml => ml.User)
-                .WithMany(u => u.MagicLinkTokens)
-                .HasForeignKey(ml => ml.UserId);
-
             // Category
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Categories)

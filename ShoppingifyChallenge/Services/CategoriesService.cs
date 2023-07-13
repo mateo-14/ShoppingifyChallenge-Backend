@@ -1,4 +1,6 @@
 ﻿using FluentResults;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingifyChallenge.Data;
 using ShoppingifyChallenge.Models;
@@ -15,14 +17,13 @@ namespace ShoppingifyChallenge.Services
 
         public async Task<Result<Category>> CreateCategory(int userId, string name)
         {
-            var user = await _dbContext.Users.FindAsync(userId);
-            if (user == null)
+            if (!await _dbContext.Users.AnyAsync(u => u.Id == userId))
             {
                 return Result.Fail("User not found");
             }
 
             var category = new Category { Name = name, UserId = userId };
-            _dbContext.Categories.Add(category);
+            var added = _dbContext.Categories.Add(category);
             await _dbContext.SaveChangesAsync();
             return Result.Ok(category);
         }
