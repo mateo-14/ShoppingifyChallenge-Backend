@@ -30,6 +30,7 @@ namespace ShoppingifyChallenge.Services
             }
 
             var token = GenerateMagiclinkJWT(user.Id);
+            // TODO Send email with magic link
             return token;
         }
 
