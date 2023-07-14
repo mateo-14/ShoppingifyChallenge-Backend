@@ -88,7 +88,8 @@ namespace ShoppingifyChallenge.Services
             var token = new JwtSecurityToken(
                 claims: new List<Claim>()
                 {
-                    new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                    new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                    new Claim("uuid", Guid.NewGuid().ToString())
                 },
                 expires: DateTime.Now.AddHours(1),
                 signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)

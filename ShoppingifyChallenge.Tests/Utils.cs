@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using ShoppingifyChallenge.Data;
 using ShoppingifyChallenge.Models;
+using ShoppingifyChallenge.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,6 +104,14 @@ namespace ShoppingifyChallenge.Tests
             await db.SaveChangesAsync();
 
             return items;
+        }
+
+        public static async Task<string> Login(string email, IAuthService authService)
+        {
+            var magiclinkToken = await authService.GenerateMagiclinkToken(email);
+            var token = await authService.LoginWithMagiclinkToken(magiclinkToken);
+
+            return token.Value;
         }
     }
 }
