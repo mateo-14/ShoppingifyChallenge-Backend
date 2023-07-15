@@ -35,8 +35,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var totalUserCategories = await dbContext.Categories.Where(c => c.UserId == user.Id).CountAsync();
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync("/api/categories");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
                 var content = await response.Content.ReadAsStringAsync();
@@ -63,10 +64,12 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
                 var totalUserCategories = await dbContext.Categories.Where(c => c.UserId == user.Id).CountAsync();
 
-                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var newCategory = new { name = "New Category" };
+
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
                 var response = await _client.PostAsync("/api/categories", new StringContent(JsonSerializer.Serialize(new { name = "New Category" }), Encoding.UTF8, "application/json"));
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
                 var content = await response.Content.ReadAsStringAsync();
