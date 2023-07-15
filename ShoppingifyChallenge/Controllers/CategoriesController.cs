@@ -59,7 +59,7 @@ namespace ShoppingifyChallenge.Controllers
             
             if (createResult.IsFailed)
             {
-                return BadRequest(createResult.Errors);
+                return BadRequest(createResult.Errors[0]);
             }
 
             return Ok(createResult.Value);
