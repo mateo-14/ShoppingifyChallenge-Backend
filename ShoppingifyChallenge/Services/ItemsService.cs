@@ -15,8 +15,8 @@ namespace ShoppingifyChallenge.Services
 
         public async Task<Result<Item>> CreateItem(int userId, int categoryId, string name)
         {
-            var category = await _dbContext.Categories.FindAsync(categoryId);
-            if (category == null || category.UserId != userId)
+            var categoryExists = await _dbContext.Categories.AnyAsync(c => c.Id == categoryId && c.UserId == userId);
+            if (!categoryExists)
             {
                 return Result.Fail("Category not found");
             }

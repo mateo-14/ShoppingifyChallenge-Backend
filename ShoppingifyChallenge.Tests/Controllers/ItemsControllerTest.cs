@@ -42,13 +42,14 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var totalUserItems = await dbContext.Items.Where(c => c.Category.UserId == user.Id).CountAsync();
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.PostAsync("/api/items", new StringContent(JsonSerializer.Serialize(new Item
                 {
                     Name = "Test Item",
                     CategoryId = (await dbContext.Categories.FirstAsync()).Id
                 }), Encoding.UTF8, "application/json"));
-                Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+                _client.DefaultRequestHeaders.Authorization = null;
+
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
                 var content = await response.Content.ReadAsStringAsync();
                 var data = JsonSerializer.Deserialize<Item>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -79,12 +80,74 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.PostAsync("/api/items", new StringContent(JsonSerializer.Serialize(new Item
                 {
                     Name = "Test Item",
                     CategoryId = 999
                 }), Encoding.UTF8, "application/json"));
+                _client.DefaultRequestHeaders.Authorization = null;
+
+                Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            }
+        }
+
+        [TestMethod]
+        public async Task CreateItem_WhenCalledWithoutCategory_ReturnsBadRequest()
+        {
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ShoppingListContext>();
+                var user = await dbContext.Users.FirstAsync();
+                var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
+
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+                var response = await _client.PostAsync("/api/items", new StringContent(JsonSerializer.Serialize(new Item
+                {
+                    Name = "Test Item"
+                }), Encoding.UTF8, "application/json"));
+                _client.DefaultRequestHeaders.Authorization = null;
+
+                Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            }
+        }
+
+        [TestMethod] 
+        public async Task CreateItem_WhenCalledWithoutItemName_ReturnsBadRequest()
+        {
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ShoppingListContext>();
+                var user = await dbContext.Users.FirstAsync();
+                var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
+
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+                var response = await _client.PostAsync("/api/items", new StringContent(JsonSerializer.Serialize(new Item
+                {
+                    CategoryId = 1
+                }), Encoding.UTF8, "application/json"));
+                _client.DefaultRequestHeaders.Authorization = null;
+
+                Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            }
+        }
+
+        [TestMethod]
+        public async Task CreateItem_WhenCalledWithEmptyItemName_ReturnsBadRequest()
+        {
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ShoppingListContext>();
+                var user = await dbContext.Users.FirstAsync();
+                var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
+
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+                var response = await _client.PostAsync("/api/items", new StringContent(JsonSerializer.Serialize(new Item
+                {
+                    CategoryId = 1,
+                    Name = ""
+                }), Encoding.UTF8, "application/json"));
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             }
         }
@@ -99,8 +162,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var totalUserItems = await dbContext.Items.Where(c => c.Category.UserId == user.Id).CountAsync();
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync("/api/items");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
                 var content = await response.Content.ReadAsStringAsync();
@@ -129,8 +193,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var categoryId = (await dbContext.Categories.FirstAsync(c => c.UserId == user.Id)).Id;
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync($"/api/items?categoryId={categoryId}");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
                 var content = await response.Content.ReadAsStringAsync();
@@ -158,8 +223,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var categoryId = (await dbContext.Categories.FirstAsync(c => c.UserId != user.Id)).Id;
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync($"/api/items?categoryId={categoryId}");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
             }
         }
@@ -174,8 +240,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync($"/api/items?categoryId=999");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
             }
         }
@@ -191,8 +258,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var itemId = (await dbContext.Items.FirstAsync(c => c.Category.UserId == user.Id)).Id;
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync($"/api/items/{itemId}");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
                 var content = await response.Content.ReadAsStringAsync();
@@ -220,8 +288,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var itemId = (await dbContext.Items.FirstAsync(c => c.Category.UserId != user.Id)).Id;
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync($"/api/items/{itemId}");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
             }
         }
@@ -236,8 +305,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.GetAsync($"/api/items/999");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
             }
         }
@@ -253,9 +323,13 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var itemId = (await dbContext.Items.FirstAsync(c => c.Category.UserId == user.Id)).Id;
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.DeleteAsync($"/api/items/{itemId}");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+                var item = await dbContext.Items.FindAsync(itemId);
+                Assert.IsNotNull(item);
+                Assert.IsTrue(item.Deleted);
             }
         }
 
@@ -277,8 +351,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var itemId = (await dbContext.Items.FirstAsync(c => c.Category.UserId != user.Id)).Id;
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.DeleteAsync($"/api/items/{itemId}");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
             }
         }
@@ -293,8 +368,9 @@ namespace ShoppingifyChallenge.Tests.Controllers
                 var jwt = await Utils.Login(user.Email, scope.ServiceProvider.GetRequiredService<IAuthService>());
 
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-
                 var response = await _client.DeleteAsync($"/api/items/999");
+                _client.DefaultRequestHeaders.Authorization = null;
+
                 Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
             }
         }

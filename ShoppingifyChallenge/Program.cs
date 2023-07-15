@@ -32,9 +32,11 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelS
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
+builder.Services.AddScoped<IItemsService, ItemsService>();
 
 builder.Services.AddScoped<IValidator<MagicLinkRequest>, MagicLinkRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateCategoryRequest>, CreateCategoryRequestValidator>();
+builder.Services.AddScoped<IValidator<CreateItemRequest>, CreateItemRequestValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
